@@ -19,7 +19,7 @@ $ helm install redis-62 ./redis/redis-16.13.2.tgz \
   --set auth.password=admin
 
 # 卸载 Redis
-# $ helm uninstall redis-62 -n common
+# $ helm uninstall redis-62 -n infra
 
 ## 参数说明
 - `./redis/redis-16.13.2.tgz`为从bitnamit同步的Helm Chart
