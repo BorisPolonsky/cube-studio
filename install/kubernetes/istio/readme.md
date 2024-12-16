@@ -26,3 +26,35 @@ namespace=istio-system
 kubectl api-resources -o name --verbs=list --namespaced | xargs -n 1 kubectl get --show-kind --ignore-not-found -n $namespace
 
 ```
+
+
+
+### 使用Helm部署istio
+部署`istio`控制面之前，需先部署想要的CRD
+
+利用`istio-base`模板部署`CRD`
+
+```
+helm install istio-base istio/base-1.15.7.tgz -n istio-system --set defaultRevision=default --create-namespace
+```
+参数说明
+`istio/base-1.15.7.tgz`可通过添加官方`helm repo`后通过`helm fetch istio/base --version=1.15.7`同步到离线环境的的模板，其中`1.15.7`是`istio 1.15.*`的最后一个版本
+
+
+检查安装情况
+```
+helm ls -n istio-system
+NAME      	NAMESPACE   	REVISION	UPDATED                                	STATUS  	CHART      	APP VERSION
+istio-base	istio-system	1       	2024-12-16 11:24:58.572877125 +0800 CST	deployed	base-1.15.7	1.15.7
+```
+
+
+```
+helm install istiod istiod-1.15.7.tgz -n istio-system --wait \
+  --set-string global.hub=docker2.gf.com.cn/aims2/istio
+```
+参数说明
+- `istiod-1.15.7.tgz`可通过添加官方`helm repo`后通过`helm fetch istio/istiod --version=1.15.7`同步到离线环境的的模板，其中`1.15.7`是`istio 1.15.*`的最后一个版本
+- `--set defaultRevision=default` 根据官方文档
+> When performing a revisioned installation, the base chart requires the --set defaultRevision=<revision> value to be set for resource validation to function. Below we install the default revision, so --set defaultRevision=default is configured.
+- `--set-string global.hub=docker2.gf.com.cn/aims2/istio`全家配置需要拉去istio镜像的本地仓库
