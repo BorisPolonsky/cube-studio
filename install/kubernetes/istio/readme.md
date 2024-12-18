@@ -58,3 +58,22 @@ helm install istiod istiod-1.15.7.tgz -n istio-system --wait \
 - `--set defaultRevision=default` 根据官方文档
 > When performing a revisioned installation, the base chart requires the --set defaultRevision=<revision> value to be set for resource validation to function. Below we install the default revision, so --set defaultRevision=default is configured.
 - `--set-string global.hub=docker2.gf.com.cn/aims2/istio`全家配置需要拉去istio镜像的本地仓库
+
+
+注意用helm部署完`istio`后，仍需手工部署`istio-gateway`
+```
+kubectl create namespace istio-ingress
+helm install istio-ingress istio/gateway -n istio-ingress --wait
+```
+
+注意，对于内核<4版本的系统，需要修改securityContext，参考[ref1](https://github.com/istio/istio/issues/49549)，否则istio-ingress会启动失败
+可部署后修改ingress的配置
+kubectl edit istio-ingress -n istio-ingress
+去掉下列内容
+```
+        securityContext:
+          sysctls:
+          - name: net.ipv4.ip_unprivileged_port_start
+            value: "0"
+```
+直接将官方helm chart的相关内容去掉，制作新的helm chart部署
