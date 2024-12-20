@@ -19,7 +19,7 @@
           "choice": [
           ],
           "range": "",
-          "default": "ccr.ccs.tencentyun.com/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
+          "default": "docker2.gf.com.cn/aims2/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
           "placeholder": "",
           "describe": "要调试的镜像，<a target='_blank' href='https://github.com/data-infra/cube-studio/tree/main/images'>基础镜像参考<a>",
           "editable": 1
@@ -80,7 +80,7 @@
   },
   "drop-duplicates": {
     "project_name": "特征处理",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/data-process:20230501",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/data-process:20230501",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/data-process",
     "image_describe": "去除重复样本",
     "job_template_name": "drop-duplicates",
@@ -98,7 +98,7 @@
   },
   "drop-missing": {
     "project_name": "特征处理",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/data-process:20230501",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/data-process:20230501",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/data-process",
     "image_describe": "删除缺失率过高的值",
     "job_template_name": "drop-missing",
@@ -496,7 +496,7 @@
   },
   "datax": {
     "project_name": "数据导入导出",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/datax:20240501",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/datax:20240501",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/datax",
     "image_describe": "datax异构数据源同步",
     "job_template_name": "datax",
@@ -529,7 +529,7 @@
   },
   "datax-import": {
     "project_name": "数据导入导出",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/datax:20240501",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/datax:20240501",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/datax",
     "image_describe": "datax mysql postgresql 数据导入",
     "job_template_name": "datax-import",
@@ -648,7 +648,7 @@
   },
   "dataset": {
     "project_name": "数据导入导出",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/dataset:20240501",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/dataset:20240501",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/dataset",
     "image_describe": "数据集导入",
     "job_template_name": "dataset",
@@ -731,7 +731,7 @@
   },
   "model-download": {
     "project_name": "数据导入导出",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/model_download:20240501",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/model_download:20240501",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/model_download",
     "image_describe": "模型导入",
     "job_template_name": "model-download",
@@ -863,7 +863,7 @@
   },
   "volcanojob": {
     "project_name": "数据处理工具",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/volcano:20230601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/volcano:20230601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/volcano",
     "image_describe": "有序分布式任务",
     "job_template_name": "volcanojob",
@@ -886,7 +886,7 @@
           "choice": [
           ],
           "range": "",
-          "default": "ccr.ccs.tencentyun.com/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
+          "default": "docker2.gf.com.cn/aims2/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
           "placeholder": "",
           "describe": "worker镜像，直接运行你代码的环境镜像<a target='_blank' href='https://github.com/data-infra/cube-studio/tree/main/images'>基础镜像</a>",
           "editable": 1
@@ -935,7 +935,7 @@
   },
   "ray": {
     "project_name": "数据处理工具",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/ray:gpu-20240101",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/ray:gpu-20240101",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/ray",
     "image_describe": "ray分布式任务",
     "job_template_name": "ray",
@@ -956,7 +956,7 @@
           "require": 0,
           "choice": [],
           "range": "",
-          "default": "ccr.ccs.tencentyun.com/cube-studio/ray:gpu-20240101",
+          "default": "docker2.gf.com.cn/aims2/cube-studio/ray:gpu-20240101",
           "placeholder": "",
           "describe": "启动镜像，基础镜像需为该镜像，可自行添加封装自己的环境",
           "editable": 1
@@ -1014,7 +1014,7 @@
   },
   "ray-sklearn": {
     "project_name": "机器学习框架",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/ray-sklearn:20240101",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/ray-sklearn:20240101",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/ray_sklearn",
     "image_describe": "sklearn基于ray的分布式",
     "job_template_name": "ray-sklearn",
@@ -1453,7 +1453,7 @@
   },
   "tfjob": {
     "project_name": "深度学习",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/tf:20230801",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/tf:20230801",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/tf",
     "image_describe": "tf 分布式训练",
     "job_template_name": "tfjob",
@@ -1521,7 +1521,7 @@
   },
   "pytorchjob": {
     "project_name": "深度学习",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/pytorch:20230801",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/pytorch:20230801",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/pytorch",
     "image_describe": "pytorch分布式训练",
     "job_template_name": "pytorchjob",
@@ -1544,7 +1544,7 @@
           "choice": [
           ],
           "range": "",
-          "default": "ccr.ccs.tencentyun.com/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
+          "default": "docker2.gf.com.cn/aims2/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
           "placeholder": "",
           "describe": "worker镜像，直接运行你代码的环境镜像 <a target='_blank' href='https://github.com/data-infra/cube-studio/tree/main/images'>基础镜像</a>",
           "editable": 1
@@ -1773,7 +1773,7 @@
   },
   "model-register": {
     "project_name": "模型服务化",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/model_register:20230501",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/model_register:20230501",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/model_register",
     "image_describe": "注册模型",
     "job_template_name": "model-register",
@@ -1906,7 +1906,7 @@
   },
   "model-offline-predict": {
     "project_name": "模型服务化",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/offline-predict:20230801",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/offline-predict:20230801",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/model_offline_predict",
     "image_describe": "分布式离线推理",
     "job_template_name": "model-offline-predict",
@@ -1929,7 +1929,7 @@
           "choice": [
           ],
           "range": "",
-          "default": "ccr.ccs.tencentyun.com/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9-dev",
+          "default": "docker2.gf.com.cn/aims2/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9-dev",
           "placeholder": "",
           "describe": "worker镜像，直接运行你代码的环境镜像<a target='_blank' href='https://github.com/data-infra/cube-studio/tree/main/images'>基础镜像</a>",
           "editable": 1
@@ -1978,7 +1978,7 @@
   },
   "deploy-service": {
     "project_name": "模型服务化",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/deploy-service:20240601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/deploy-service:20240601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/deploy-service",
     "image_describe": "模型部署推理服务",
     "job_template_name": "deploy-service",
@@ -2248,7 +2248,7 @@
   },
   "media-download": {
     "project_name": "多媒体类模板",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/video-audio:20210601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/video-audio:20210601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/video-audio",
     "image_describe": "分布式媒体文件处理",
     "job_template_name": "media-download",
@@ -2307,7 +2307,7 @@
   },
   "video-img": {
     "project_name": "多媒体类模板",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/video-audio:20210601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/video-audio:20210601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/video-audio",
     "image_describe": "分布式媒体文件处理",
     "job_template_name": "video-img",
@@ -2352,7 +2352,7 @@
   },
   "video-audio": {
     "project_name": "多媒体类模板",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/video-audio:20210601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/video-audio:20210601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/video-audio",
     "image_describe": "分布式媒体文件处理",
     "job_template_name": "video-audio",
@@ -2397,7 +2397,7 @@
   },
   "yolov7": {
     "project_name": "机器视觉",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/yolov7:2024.01",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/yolov7:2024.01",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/yolov7",
     "image_describe": "yolo目标识别",
     "job_template_name": "yolov7",
@@ -2502,7 +2502,7 @@
   },
   "yolov8": {
     "project_name": "机器视觉",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/yolov8:2024.07",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/yolov8:2024.07",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/yolov8",
     "image_describe": "yolo目标识别",
     "job_template_name": "yolov8",
@@ -2725,7 +2725,7 @@
   },
   "qwen2": {
     "project_name": "大模型",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/llama-factory:20240410",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/llama-factory:20240410",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/qwen2",
     "image_describe": "qwen2",
     "job_template_name": "qwen2",
@@ -2763,7 +2763,7 @@
   },
   "nlp-clean-data": {
     "project_name": "文本处理",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/nlp-process:20240601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/nlp-process:20240601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/nlp-process",
     "image_describe": "文本算法类的数据处理",
     "job_template_name": "nlp-clean-data",
@@ -2782,7 +2782,7 @@
   },
   "nlp-filter-data": {
     "project_name": "文本处理",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/nlp-process:20240601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/nlp-process:20240601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/nlp-process",
     "image_describe": "文本算法类的数据处理",
     "job_template_name": "nlp-filter-data",
@@ -2801,7 +2801,7 @@
   },
   "nlp-replace-private-data": {
     "project_name": "文本处理",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/nlp-process:20240601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/nlp-process:20240601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/nlp-process",
     "image_describe": "文本算法类的数据处理",
     "job_template_name": "nlp-replace-private-data",
@@ -2820,7 +2820,7 @@
   },
   "vision-image-blur": {
     "project_name": "图像处理",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/vision-process:20240601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/vision-process:20240601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/vision-process",
     "image_describe": "视觉算法类的数据处理",
     "job_template_name": "vision-image-blur",
@@ -2839,7 +2839,7 @@
   },
   "vision-image-resize": {
     "project_name": "图像处理",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/vision-process:20240601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/vision-process:20240601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/vision-process",
     "image_describe": "视觉算法类的数据处理",
     "job_template_name": "vision-image-resize",
@@ -2858,7 +2858,7 @@
   },
   "vision-image-normalize": {
     "project_name": "图像处理",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/vision-process:20240601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/vision-process:20240601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/vision-process",
     "image_describe": "视觉算法类的数据处理",
     "job_template_name": "vision-image-normalize",
@@ -2877,7 +2877,7 @@
   },
   "vision-image-cropping": {
     "project_name": "图像处理",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/vision-process:20240601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/vision-process:20240601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/vision-process",
     "image_describe": "视觉算法类的数据处理",
     "job_template_name": "vision-image-cropping",
@@ -2896,7 +2896,7 @@
   },
   "vision-image-equalize": {
     "project_name": "图像处理",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/vision-process:20240601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/vision-process:20240601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/vision-process",
     "image_describe": "视觉算法类的数据处理",
     "job_template_name": "vision-image-equalize",
@@ -2915,7 +2915,7 @@
   },
   "vision-image-cvtcolor": {
     "project_name": "图像处理",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/vision-process:20240601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/vision-process:20240601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/vision-process",
     "image_describe": "视觉算法类的数据处理",
     "job_template_name": "vision-image-cvtcolor",
@@ -2934,7 +2934,7 @@
   },
   "vision-image-augmentation": {
     "project_name": "图像处理",
-    "image_name": "ccr.ccs.tencentyun.com/cube-studio/vision-process:20240601",
+    "image_name": "docker2.gf.com.cn/aims2/cube-studio/vision-process:20240601",
     "gitpath": "https://github.com/data-infra/cube-studio/tree/main/job-template/job/vision-process",
     "image_describe": "视觉算法类的数据处理",
     "job_template_name": "vision-image-augmentation",

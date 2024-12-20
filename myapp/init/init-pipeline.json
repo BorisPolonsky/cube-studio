@@ -31,7 +31,7 @@
         "label": "下载处理标注数据",
         "volume_mount": "kubeflow-user-workspace(pvc):/mnt/",
         "args": {
-          "images": "ccr.ccs.tencentyun.com/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
+          "images": "docker2.gf.com.cn/aims2/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
           "workdir": "/mnt/{{creator}}/",
           "command": "wget https://cube-studio.oss-cn-hangzhou.aliyuncs.com/pipeline/coco.zip --no-check-certificate && unzip -o coco.zip && cd  coco_data_sample && bash reset_file.sh"
         }
@@ -64,7 +64,7 @@
           "--model_version": "v2024.01.01.1",
           "--model_path": "/mnt/{{creator}}/coco_data_sample/yolov7_best.pt",
           "--service_type": "serving",
-          "--images": "ccr.ccs.tencentyun.com/cube-studio/yolov7:2024.01",
+          "--images": "docker2.gf.com.cn/aims2/cube-studio/yolov7:2024.01",
           "--working_dir": "/yolov7",
           "--command": "python server.py",
           "--env": "MODELPATH=/mnt/{{creator}}/coco_data_sample/yolov7_best.pt\nYOLO_EXAMPLE=/mnt/{{creator}}/coco_data_sample/images/train2014//mnt/admin/coco_data_sample/images/train2014",
@@ -343,7 +343,7 @@
         "resource_cpu": "2",
         "resource_gpu": "0",
         "args": {
-          "images": "ccr.ccs.tencentyun.com/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
+          "images": "docker2.gf.com.cn/aims2/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
           "workdir": "/mnt/{{creator}}/pipeline/example/ml/",
           "command": "sh fix.sh"
         }
@@ -382,7 +382,7 @@
           "--model_version": "v2023.11.01.1",
           "--model_path": "/mnt/{{creator}}/pipeline/example/ml/decisionTree_model.pkl",
           "--service_type": "ml-server",
-          "--images": "ccr.ccs.tencentyun.com/cube-studio/ml-server:20240601",
+          "--images": "docker2.gf.com.cn/aims2/cube-studio/ml-server:20240601",
           "--working_dir": "",
           "--command": "",
           "--env": "",
@@ -498,7 +498,7 @@
           "--model_version": "v2024.06.01.1",
           "--model_path": "/mnt/{{creator}}/pipeline/example/chatglm/result/exported_model",
           "--service_type": "llm-server",
-          "--images": "ccr.ccs.tencentyun.com/cube-studio/llm-server:20240601",
+          "--images": "docker2.gf.com.cn/aims2/cube-studio/llm-server:20240601",
           "--working_dir": "/FastChat",
           "--command": "python -m vllm.entrypoints.openai.api_server --trust-remote-code --model $KUBEFLOW_MODEL_PATH --host 0.0.0.0 --port 8000 --dtype float16 --tensor-parallel-size $RESOURCE_GPU --served-model-name $KUBEFLOW_MODEL_NAME",
           "--env": "HF_ENDPOINT=https://hf-mirror.com",
@@ -524,7 +524,7 @@
         "resource_gpu": "0",
         "resource_rdma": "0",
         "args": {
-          "images": "ccr.ccs.tencentyun.com/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
+          "images": "docker2.gf.com.cn/aims2/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
           "workdir": "/mnt/{{creator}}/pipeline/example/chatglm/",
           "command": "python data-process-identiy.py"
         }
@@ -678,7 +678,7 @@
                 "resource_gpu": "0",
                 "resource_rdma": "0",
                 "args": {
-                    "images": "ccr.ccs.tencentyun.com/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
+                    "images": "docker2.gf.com.cn/aims2/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
                     "workdir": "/mnt/{{creator}}/pipeline/example/yolo/electric-bicycle",
                     "command": "python yolo-data-process.py"
                 }
@@ -718,7 +718,7 @@
                     "--model_version": "v20240701",
                     "--model_path": "/mnt/{{creator}}/pipeline/example/yolo/electric-bicycle/electric-bicycle-new.pt",
                     "--service_type": "serving",
-                    "--images": "ccr.ccs.tencentyun.com/cube-studio/yolov8:2024.07",
+                    "--images": "docker2.gf.com.cn/aims2/cube-studio/yolov8:2024.07",
                     "--working_dir": "/yolov8",
                     "--command": "python server.py",
                     "--env": "MODELPATH=/mnt/admin/pipeline/example/yolo/electric-bicycle/electric-bicycle-new.pt\nYOLO_SAVE_DIR=/mnt/admin/pipeline/example/yolo/inference/\nYOLO_EXAMPLE=https://cube-studio.oss-cn-hangzhou.aliyuncs.com/labelstudio/vision/electric-bicycle/2020_2582.jpg",
@@ -744,7 +744,7 @@
                 "resource_gpu": "0",
                 "resource_rdma": "0",
                 "args": {
-                    "images": "ccr.ccs.tencentyun.com/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
+                    "images": "docker2.gf.com.cn/aims2/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
                     "workdir": "/mnt/{{creator}}/pipeline/example/yolo/",
                     "command": "rm -rf electric-bicycle.zip && wget https://cube-studio.oss-cn-hangzhou.aliyuncs.com/pipeline/electric-bicycle/electric-bicycle.zip --no-check-certificate && unzip -n electric-bicycle.zip && cd electric-bicycle && sh reset.sh"
                 }
