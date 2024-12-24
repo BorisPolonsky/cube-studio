@@ -730,25 +730,25 @@ SERVICE_PIPELINE_JAEGER='tracing.service'
 # 拉取私有仓库镜像默认携带的k8s hubsecret名称
 HUBSECRET = ['hubsecret']
 # 私有仓库的组织名，用户在线构建的镜像自动推送这个组织下面
-REPOSITORY_ORG='ccr.ccs.tencentyun.com/cube-studio/'
+REPOSITORY_ORG='docker2.gf.com.cn/aims2/cube-studio/'
 # 用户常用默认镜像
-USER_IMAGE = 'ccr.ccs.tencentyun.com/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9'
+USER_IMAGE = 'docker2.gf.com.cn/aims2/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9'
 # notebook每个pod使用的用户账号
 JUPYTER_ACCOUNTS=''
 HUBSECRET_NAMESPACE=[PIPELINE_NAMESPACE,AUTOML_NAMESPACE,NOTEBOOK_NAMESPACE,SERVICE_NAMESPACE,AIHUB_NAMESPACE]
 
 # notebook使用的镜像
 NOTEBOOK_IMAGES=[
-    ['ccr.ccs.tencentyun.com/cube-studio/notebook:vscode-ubuntu-cpu-base', 'vscode（cpu）'],
-    ['ccr.ccs.tencentyun.com/cube-studio/notebook:vscode-ubuntu-gpu-base', 'vscode（gpu）'],
-    ['ccr.ccs.tencentyun.com/cube-studio/notebook:jupyter-ubuntu22.04', 'jupyter（cpu）'],
-    ['ccr.ccs.tencentyun.com/cube-studio/notebook:jupyter-ubuntu22.04-cuda11.8.0-cudnn8','jupyter（gpu）'],
-    ['ccr.ccs.tencentyun.com/cube-studio/notebook:jupyter-ubuntu-bigdata', 'jupyter（bigdata）'],
-    ['ccr.ccs.tencentyun.com/cube-studio/notebook:jupyter-ubuntu-machinelearning', 'jupyter（machinelearning）'],
-    ['ccr.ccs.tencentyun.com/cube-studio/notebook:jupyter-ubuntu-deeplearning', 'jupyter（deeplearning）'],
-    ['ccr.ccs.tencentyun.com/cube-studio/notebook:enterprise-jupyter-ubuntu-cpu-pro', 'jupyter-conda-pro（企业版）'],
-    ['ccr.ccs.tencentyun.com/cube-studio/notebook:enterprise-matlab-ubuntu-deeplearning', 'matlab（企业版）'],
-    ['ccr.ccs.tencentyun.com/cube-studio/notebook:enterprise-rstudio-ubuntu-bigdata', 'rstudio（企业版）'],
+    ['docker2.gf.com.cn/aims2/cube-studio/notebook:vscode-ubuntu-cpu-base', 'vscode（cpu）'],
+    ['docker2.gf.com.cn/aims2/cube-studio/notebook:vscode-ubuntu-gpu-base', 'vscode（gpu）'],
+    ['docker2.gf.com.cn/aims2/cube-studio/notebook:jupyter-ubuntu22.04', 'jupyter（cpu）'],
+    ['docker2.gf.com.cn/aims2/cube-studio/notebook:jupyter-ubuntu22.04-cuda11.8.0-cudnn8','jupyter（gpu）'],
+    ['docker2.gf.com.cn/aims2/cube-studio/notebook:jupyter-ubuntu-bigdata', 'jupyter（bigdata）'],
+    ['docker2.gf.com.cn/aims2/cube-studio/notebook:jupyter-ubuntu-machinelearning', 'jupyter（machinelearning）'],
+    ['docker2.gf.com.cn/aims2/cube-studio/notebook:jupyter-ubuntu-deeplearning', 'jupyter（deeplearning）'],
+    ['docker2.gf.com.cn/aims2/cube-studio/notebook:enterprise-jupyter-ubuntu-cpu-pro', 'jupyter-conda-pro（企业版）'],
+    ['docker2.gf.com.cn/aims2/cube-studio/notebook:enterprise-matlab-ubuntu-deeplearning', 'matlab（企业版）'],
+    ['docker2.gf.com.cn/aims2/cube-studio/notebook:enterprise-rstudio-ubuntu-bigdata', 'rstudio（企业版）'],
 ]
 
 # 定时检查大小的目录列表。需要再celery中启动检查任务
@@ -769,7 +769,7 @@ ARCHIVES_HOST_PATH = "/data/k8s/kubeflow/pipeline/archives"
 # prometheus地址
 PROMETHEUS = 'prometheus-k8s.monitoring:9090'
 # nni默认镜像
-NNI_IMAGES='ccr.ccs.tencentyun.com/cube-studio/nni:20240501'
+NNI_IMAGES='docker2.gf.com.cn/aims2/cube-studio/nni:20240501'
 
 # 数据集的存储地址
 DATASET_SAVEPATH = '/dataset/'
@@ -817,8 +817,8 @@ ALL_LINKS=[
 # 推理服务的各种配置
 TFSERVING_IMAGES=['tensorflow/serving:2.14.1-gpu','tensorflow/serving:2.14.1','tensorflow/serving:2.13.1-gpu','tensorflow/serving:2.13.1','tensorflow/serving:2.12.2-gpu','tensorflow/serving:2.12.2','tensorflow/serving:2.11.1-gpu','tensorflow/serving:2.11.1','tensorflow/serving:2.10.1-gpu','tensorflow/serving:2.10.1','tensorflow/serving:2.9.3-gpu','tensorflow/serving:2.9.3','tensorflow/serving:2.8.4-gpu','tensorflow/serving:2.8.4','tensorflow/serving:2.7.4-gpu','tensorflow/serving:2.7.4','tensorflow/serving:2.6.5-gpu','tensorflow/serving:2.6.5','tensorflow/serving:2.5.4-gpu','tensorflow/serving:2.5.4']
 TORCHSERVER_IMAGES=['pytorch/torchserve:0.9.0-gpu','pytorch/torchserve:0.9.0-cpu','pytorch/torchserve:0.8.2-gpu','pytorch/torchserve:0.8.2-cpu','pytorch/torchserve:0.7.1-gpu','pytorch/torchserve:0.7.1-cpu']
-ONNXRUNTIME_IMAGES=['ccr.ccs.tencentyun.com/cube-studio/onnxruntime:latest','ccr.ccs.tencentyun.com/cube-studio/onnxruntime:latest-cuda']
-TRITONSERVER_IMAGES=['ccr.ccs.tencentyun.com/cube-studio/tritonserver:24.01-py3','ccr.ccs.tencentyun.com/cube-studio/tritonserver:23.12-py3','ccr.ccs.tencentyun.com/cube-studio/tritonserver:22.12-py3','ccr.ccs.tencentyun.com/cube-studio/tritonserver:21.12-py3','ccr.ccs.tencentyun.com/cube-studio/tritonserver:20.12-py3']
+ONNXRUNTIME_IMAGES=['docker2.gf.com.cn/aims2/cube-studio/onnxruntime:latest','docker2.gf.com.cn/aims2/cube-studio/onnxruntime:latest-cuda']
+TRITONSERVER_IMAGES=['docker2.gf.com.cn/aims2/cube-studio/tritonserver:24.01-py3','docker2.gf.com.cn/aims2/cube-studio/tritonserver:23.12-py3','docker2.gf.com.cn/aims2/cube-studio/tritonserver:22.12-py3','docker2.gf.com.cn/aims2/cube-studio/tritonserver:21.12-py3','docker2.gf.com.cn/aims2/cube-studio/tritonserver:20.12-py3']
 
 INFERNENCE_IMAGES={
     "tfserving":TFSERVING_IMAGES,
@@ -855,10 +855,10 @@ INFERNENCE_HEALTH={
 
 CONTAINER_CLI='docker'   # 或者 docker nerdctl
 
-DOCKER_IMAGES='docker:23.0.4'
-NERDCTL_IMAGES='ccr.ccs.tencentyun.com/cube-studio/nerdctl:1.7.2'
+DOCKER_IMAGES='docker2.gf.com.cn/aims2/cube-studio/docker:23.0.4'
+NERDCTL_IMAGES='docker2.gf.com.cn/aims2/cube-studio/nerdctl:1.7.2'
 
-WAIT_POD_IMAGES='ccr.ccs.tencentyun.com/cube-studio/wait-pod:v1'
+WAIT_POD_IMAGES='docker2.gf.com.cn/aims2/cube-studio/wait-pod:v1'
 # notebook，pipeline镜像拉取策略
 IMAGE_PULL_POLICY='Always'    # IfNotPresent   Always
 
