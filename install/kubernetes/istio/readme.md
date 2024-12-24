@@ -65,6 +65,32 @@ helm install istiod istiod-1.15.7.tgz -n istio-system --wait \
 kubectl create namespace istio-ingress
 helm install istio-ingress istio/gateway -n istio-ingress --wait
 ```
+注意helm部署后ns和ingress的名称都为`istio-ingress`,与手工部署的配置(`ns`为`istio-system`，`ingress`名称为`istio-ingressgateway`
+
+该模板默认参数会将流量导入到ingress容器内的80和443端口，在istio容器没有配置特权的情形下无法使用80,443等序号过低的容器内端口，可新建形如下列values.yaml并修改相应配置，例如以下配置适用于gateway使用`15021`,`8080`和`8443`端口，ingress以`NodePort`形式暴露的使用场景
+```
+cat <<EOF | helm install istio-ingress --namespace istio-ingress -f - isito/gateway
+service:
+  # Type of service. Set to "None" to disable the service entirely
+  type: NodePort
+  ports:
+  - name: status-port
+    nodePort: 30000
+    port: 15021
+    protocol: TCP
+    targetPort: 15021
+  - name: http2
+    nodePort: 30010
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  - name: https
+    nodePort: 30020
+    port: 443
+    protocol: TCP
+    targetPort: 8443
+EOF
+`
 
 注意，对于内核<4版本的系统，需要修改securityContext，参考[ref1](https://github.com/istio/istio/issues/49549)，否则istio-ingress会启动失败
 可部署后修改ingress的配置
@@ -76,4 +102,4 @@ kubectl edit istio-ingress -n istio-ingress
           - name: net.ipv4.ip_unprivileged_port_start
             value: "0"
 ```
-直接将官方helm chart的相关内容去掉，制作新的helm chart部署
+或者直接将官方helm chart的相关内容去掉，制作新的helm chart部署
