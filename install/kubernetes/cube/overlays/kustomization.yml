@@ -14,10 +14,10 @@ configMapGenerator:
 - name: deploy-config
   literals:
   - STAGE=prod
-  - REDIS_HOST=redis-master.infra
+  - REDIS_HOST=redis-62-master-0.redis-62-master.infra.svc.cluster.local
   - REDIS_PORT=6379
   - REDIS_PASSWORD=admin
-  - MYSQL_SERVICE=mysql+pymysql://root:admin@mysql-service.infra:3306/kubeflow?charset=utf8
+  - MYSQL_SERVICE=mysql+pymysql://root:admin@mysql-80.infra.svc.cluster.local:3306/kubeflow?charset=utf8
   - ENVIRONMENT=DEV
 
 
@@ -35,10 +35,10 @@ resources:
 
 images:
 - name: ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard
-  newName: ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard
+  newName: docker2.gf.com.cn/aims2/cube-studio/kubeflow-dashboard
   newTag: 2024.11.01
 - name: ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard-frontend
-  newName: ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard-frontend
+  newName: docker2.gf.com.cn/aims2/cube-studio/kubeflow-dashboard-frontend
   newTag: 2024.11.01
 
 
