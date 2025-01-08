@@ -336,6 +336,7 @@ class UserInfoEditView(SimpleFormView):
 
 from myapp.project import MyCustomRemoteUserView
 from myapp.project import Myauthdbview
+from myapp.project import MyAuthLdapView
 # myapp自带的角色和角色权限，自定义了各种权限
 # 基础类fab-Security-Manager中 def load_user(self, pk):  是用来认证用户的
 # before_request是user赋值给g.user
@@ -352,6 +353,9 @@ class MyappSecurityManager(SecurityManager):
     # Account password authentication
     userdbmodelview = MyUserRemoteUserModelView
     authdbview = Myauthdbview
+
+    # Ldap Authentication
+    userldapmodelview = MyAuthLdapView
 
     # userinfo edit view
     userinfoeditview = UserInfoEditView
@@ -430,7 +434,7 @@ class MyappSecurityManager(SecurityManager):
 
         elif self.auth_type == AUTH_LDAP:
             self.user_view = self.userdbmodelview
-            self.auth_view = self.authdbview()
+            self.auth_view = self.userldapmodelview()
         elif self.auth_type == AUTH_OAUTH:
             self.user_view = self.useroauthmodelview
             self.auth_view = self.authoauthview()

@@ -221,8 +221,19 @@ class Myauthdbview(AuthDBView):
             self.login_template, title=self.title, form=form, appbuilder=self.appbuilder
         )
 
-    @expose("/login/ldap", methods=["GET", "POST"])
-    def login_ldap(self):
+    @expose('/logout')
+    def logout(self):
+        login_url = request.host_url.strip('/') + '/login/'
+        session.pop('user', None)
+        g.user = None
+        logout_user()
+        return redirect(login_url)
+
+class MyAuthLdapView(AuthDBView):
+    login_template = "appbuilder/general/security/login_ldap.html"
+
+    @expose("/login/", methods=["GET", "POST"])
+    def login(self):
         request_data = request.args.to_dict()
         comed_url = request_data.get('login_url', '')
         if g.user is not None and g.user.is_authenticated:
@@ -262,4 +273,3 @@ class Myauthdbview(AuthDBView):
         g.user = None
         logout_user()
         return redirect(login_url)
-
