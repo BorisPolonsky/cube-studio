@@ -787,7 +787,7 @@ STORE_CONFIG = {
 K8S_DASHBOARD_CLUSTER = '/k8s/dashboard/cluster/'  #
 BLACK_PORT = [10250]   # 黑名单端口，cube-studio将不会占用这些端口，10250是kubelet的端口。
 
-K8S_NETWORK_MODE = 'iptables'   # iptables ipvs
+K8S_NETWORK_MODE = 'ipvs'   # iptables ipvs
 NOTEBOOK_EXCLUSIVE = False   # notebook 启动是否独占资源
 SERVICE_EXCLUSIVE = False   # 内部服务 启动是否独占资源
 
