@@ -221,6 +221,40 @@ class Myauthdbview(AuthDBView):
             self.login_template, title=self.title, form=form, appbuilder=self.appbuilder
         )
 
+    @expose("/login/ldap", methods=["GET", "POST"])
+    def login_ldap(self):
+        request_data = request.args.to_dict()
+        comed_url = request_data.get('login_url', '')
+        if g.user is not None and g.user.is_authenticated:
+            return redirect(self.appbuilder.get_url_for_index)
+
+        form = LoginForm_db()
+
+        if form.validate_on_submit():
+            username = form.username.data
+            password = form.password.data
+            # Authenticate and create user if necessary
+            user = self.appbuilder.sm.auth_user_ldap(username, password)
+            if user is None:
+                flash('账号密码错误', "warning")
+                return redirect(self.appbuilder.get_url_for_login)
+            user = self.appbuilder.sm.find_user(username=username)
+            if not user:
+                flash('用户%s不存在，请联系管理员创建' % form.username.data, "warning")
+                return redirect(self.appbuilder.get_url_for_login)
+            elif not user.is_active:
+                flash('用户%s已存在，但未激活，请联系管理员激活' % form.username.data, "warning")
+                return redirect(self.appbuilder.get_url_for_login)
+            login_user(user, remember=True)
+            # 添加到public项目组
+            from myapp.security import MyUserRemoteUserModelView_Base
+            user_view = MyUserRemoteUserModelView_Base()
+            user_view.post_add(user)
+            return redirect(comed_url if comed_url else self.appbuilder.get_url_for_index)
+        return self.render_template(
+            self.login_template, title=self.title, form=form, appbuilder=self.appbuilder
+        )
+
     @expose('/logout')
     def logout(self):
         login_url = request.host_url.strip('/') + '/login/'
