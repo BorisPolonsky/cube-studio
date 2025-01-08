@@ -8,7 +8,7 @@ import sys
 
 from dateutil import tz
 
-from flask_appbuilder.security.manager import AUTH_REMOTE_USER, AUTH_DB
+from flask_appbuilder.security.manager import AUTH_REMOTE_USER, AUTH_DB, AUTH_LDAP
 from myapp.stats_logger import DummyStatsLogger
 
 
@@ -94,6 +94,29 @@ AUTH_TYPE = AUTH_DB
 
 # 是否允许用户注册
 AUTH_USER_REGISTRATION = False
+
+
+# GF-IAM
+AUTH_TYPE = AUTH_LDAP
+AUTH_LDAP_SERVER = "ldap://iam.gf.com.cn:389"
+AUTH_LDAP_USE_TLS = False
+
+# registration configs
+AUTH_USER_REGISTRATION = True
+AUTH_USER_REGISTRATION_ROLE = "Public"
+AUTH_ROLE_ADMIN = "Admin"
+AUTH_ROLE_PUBLIC = "Public"
+AUTH_LDAP_EMAIL_FIELD = "mail"  # if null in LDAP, email is set to: "{username}@email.notfound"
+
+# search configs
+AUTH_LDAP_SEARCH = "OU=广发证券股份有限公司,DC=gfsecurities,DC=com"
+AUTH_LDAP_UID_FIELD = "sAMAccountName"  # the username field
+AUTH_LDAP_BIND_USER = "CN=cube-studio平台管理员,OU=AD用户,OU=AD群组,OU=广发证券股份有限公司,DC=gfsecurities,DC=com"
+AUTH_LDAP_BIND_PASSWORD = "CubeAdmin@gf" # # the special bind password for search
+
+# You can limit the LDAP search scope by configuring
+AUTH_LDAP_SEARCH_FILTER="(objectClass=person)"
+
 
 # 用户的默认角色
 AUTH_USER_REGISTRATION_ROLE = "Gamma"
@@ -209,7 +232,7 @@ ADDITIONAL_MODULE_DS_MAP = {}
 ADDITIONAL_MIDDLEWARE = []
 
 LOG_FORMAT = "%(asctime)s:%(levelname)s:%(name)s:%(message)s"
-LOG_LEVEL = "INFO"
+LOG_LEVEL = "DEBUG"
 
 # ---------------------------------------------------
 # Enable Time Rotate Log Handler
