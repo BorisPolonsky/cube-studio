@@ -37,7 +37,7 @@ images:
 - name: ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard
   # newName: docker2.gf.com.cn/aims2/cube-studio/kubeflow-dashboard
   # newTag: 2024.11.01
-  newName: dockertest.gf.com.cn/aims2/cube-studio/kubeflow-dashboard
+  newName: docker2.gf.com.cn/aims2/cube-studio/kubeflow-dashboard
   newTag: 2024.11.01-ldap-support-2025.01.08.8
 - name: ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard-frontend
   newName: docker2.gf.com.cn/aims2/cube-studio/kubeflow-dashboard-frontend
