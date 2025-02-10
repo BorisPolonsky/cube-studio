@@ -4,9 +4,11 @@
 
 ## 使用Helm替代部署
 # 添加仓库
+```
 $ helm repo add bitnami https://charts.bitnami.com/bitnami
-
+```
 # 安装 Redis
+```
 $ helm install redis-62 ./redis/redis-16.13.2.tgz \
   -n infra \
   --set-string image.registry=docker2.gf.com.cn \
@@ -17,10 +19,11 @@ $ helm install redis-62 ./redis/redis-16.13.2.tgz \
   --set-string master.persistence.storageClass=local-path \
   --set-string replica.persistence.storageClass=local-path \
   --set auth.password=admin
-
+```
 # 卸载 Redis
-# $ helm uninstall redis-62 -n infra
-
+```
+$ helm uninstall redis-62 -n infra
+```
 ## 参数说明
 - `./redis/redis-16.13.2.tgz`为从bitnamit同步的Helm Chart
 - 因项目对 Redis 版本有要求，指定 Redis Chart 的版本为 16.13.2 是因为其是最后一个使用 6.2.x 版本的 Helm Chart
@@ -29,6 +32,7 @@ $ helm install redis-62 ./redis/redis-16.13.2.tgz \
 - `--set-string image.registry=docker2.gf.com.cn`, `--set-string image.repository=aims2/bitnami/redis`和`--set-string image.tag=6.2.12`用于指定内网镜像
 ## 注意事项
 若创建后redis相关PVC为Pending，则需要自行创建PV，使用磁盘创建PV的案例如下
+```
 ---
 kubectl apply -f - <<EOF
 apiVersion: v1
@@ -55,3 +59,4 @@ spec:
           - node01  # 此处为指定节点名称，需根据实际情况修改
 EOF
 ---
+```
