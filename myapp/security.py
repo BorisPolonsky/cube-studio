@@ -323,6 +323,8 @@ class UserInfoEditView(SimpleFormView):
             if key == "csrf_token":
                 continue
             form_field = getattr(form, key)
+            if key == "password":
+                continue
             form_field.data = getattr(item, key)
 
     def form_post(self, form):
