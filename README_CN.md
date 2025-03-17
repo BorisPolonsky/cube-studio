@@ -131,7 +131,7 @@ https://github.com/data-infra/cube-studio/wiki
 
 # 公司
 
-![图片 1](https://user-images.githubusercontent.com/20157705/223387901-1b922d96-0a79-4542-b53b-e70938404b2e.png)
+![图片 1](https://github.com/user-attachments/assets/83064556-d9c2-4adb-a796-018883ed427b)
 
 # 平台简介
 
@@ -139,7 +139,7 @@ https://github.com/data-infra/cube-studio/wiki
 完整的平台包含
  - 1、机器的标准化
  - 2、分布式存储(单机可忽略)、k8s集群、监控体系(prometheus/efk/zipkin)
- - 3、基础能力(tf/pytorch/mxnet/valcano/ray等分布式，nni/katib超参搜索)
+ - 3、基础能力(tf/pytorch/mxnet/valcano/ray等分布式，nni/ray超参搜索)
  - 4、平台web部分(oa/权限/项目组、在线构建镜像、在线开发、pipeline拖拉拽、超参搜索、推理服务管理等)
 
 <img width="1437" alt="image" src="https://user-images.githubusercontent.com/20157705/182564530-2c965f5f-407d-4baa-8772-73cb2645901b.png">

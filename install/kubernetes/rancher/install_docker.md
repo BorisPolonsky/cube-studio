@@ -28,7 +28,8 @@ rm -rf /etc/apt/sources.list.d/docker.list
 
 ### 国内使用阿里源
 curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | apt-key add -
-sudo add-apt-repository  -y "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
+arch=amd64    # 或者arm64
+sudo add-apt-repository  -y "deb [arch=${arch}] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
 
 ### 安装docker
 sudo apt-get update
@@ -140,6 +141,7 @@ vi /etc/docker/daemon.json
 {
     "registry-mirrors": ["https://docker.1panel.live", "https://hub.rat.dev/", "https://docker.chenby.cn", "https://docker.m.daocloud.io"],
     "dns": ["114.114.114.114","8.8.8.8"],
+    "max-concurrent-downloads": 5,
     "data-root": "/data/docker",
     "insecure-registries":["docker.oa.com:8080"]
 }

@@ -9,7 +9,7 @@ spec:
     istio: ingress
   servers:
   - hosts:
-    - '*'         # 如果使用域名为平台接入，这里要改成域名，并重新部署这个文件
+    - '*'          # 此处不能修改为域名，不然泛域名没法用
     port:
       name: http-8080
       # number: 80 # isito-ingress容器默认参数不支持暴露80,443等低端口，手动修改gateway配置后，对应ingress SVC的targetPort配置也需要配套修改

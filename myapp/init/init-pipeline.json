@@ -33,7 +33,7 @@
         "args": {
           "images": "docker2.gf.com.cn/aims2/cube-studio/ubuntu-gpu:cuda11.8.0-cudnn8-python3.9",
           "workdir": "/mnt/{{creator}}/",
-          "command": "wget https://cube-studio.oss-cn-hangzhou.aliyuncs.com/pipeline/coco.zip --no-check-certificate && unzip -o coco.zip && cd  coco_data_sample && bash reset_file.sh"
+          "command": "rm -rf coco.zip && wget https://cube-studio.oss-cn-hangzhou.aliyuncs.com/pipeline/coco.zip --no-check-certificate && unzip -o coco.zip && cd  coco_data_sample && bash reset_file.sh"
         }
       },
       {
@@ -67,7 +67,7 @@
           "--images": "docker2.gf.com.cn/aims2/cube-studio/yolov7:2024.01",
           "--working_dir": "/yolov7",
           "--command": "python server.py",
-          "--env": "MODELPATH=/mnt/{{creator}}/coco_data_sample/yolov7_best.pt\nYOLO_EXAMPLE=/mnt/{{creator}}/coco_data_sample/images/train2014//mnt/admin/coco_data_sample/images/train2014",
+          "--env": "MODELPATH=/mnt/{{creator}}/coco_data_sample/yolov7_best.pt\nYOLO_EXAMPLE=/mnt/{{creator}}/coco_data_sample/images/train2014/COCO_train2014_000000000597.jpg",
           "--ports": "8080",
           "--replicas": "1",
           "--resource_memory": "5G",

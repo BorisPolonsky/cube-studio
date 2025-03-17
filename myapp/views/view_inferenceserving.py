@@ -11,6 +11,7 @@ from flask_babel import lazy_gettext as _
 from flask_appbuilder.actions import action
 from myapp import app, appbuilder, db
 import re
+from kubernetes.client import ApiException
 import pytz
 import pysnooper
 import copy
@@ -50,6 +51,43 @@ global_all_service_load = {
 }
 
 
+# 推理服务的各种配置
+INFERNENCE_HOST={
+    "tfserving":"/v1/models/$model_name/metadata",
+    "torch-server":":8081/models",
+    "onnxruntime":"",
+    "triton-server":'/v2/models/$model_name'
+}
+
+INFERNENCE_COMMAND={
+    "tfserving":"/usr/bin/tf_serving_entrypoint.sh --model_config_file=/config/models.config --monitoring_config_file=/config/monitoring.config --platform_config_file=/config/platform.config",
+    "torch-server":"torchserve --start --model-store /models/$model_name/ --models $model_name=$model_name.mar --foreground --log-config /config/log4j2.xml",
+    "onnxruntime":"onnxruntime_server --model_path /models/",
+    "triton-server":'tritonserver --model-repository=/models/ --strict-model-config=true --log-verbose=1'
+}
+INFERNENCE_ENV={
+    "tfserving":['TF_CPP_VMODULE=http_server=1','TZ=Asia/Shanghai']
+}
+
+INFERNENCE_PORTS={
+    "tfserving":'8501',
+    "torch-server":"8080,8081",
+    "onnxruntime":"8001",
+    "triton-server":"8000,8002"
+}
+INFERNENCE_METRICS={
+    "tfserving":'8501:/metrics',
+    "torch-server":"8082:/metrics",
+    "triton-server":"8002:/metrics"
+}
+INFERNENCE_HEALTH={
+    "tfserving":'8501:/v1/models/$model_name/versions/$model_version/metadata',
+    "torch-server":"8080:/ping",
+    "triton-server":"8000:/v2/health/ready"
+}
+
+
+
 class InferenceService_Filter(MyappFilter):
     # @pysnooper.snoop()
     def apply(self, query, func):
@@ -82,19 +120,19 @@ class InferenceService_ModelView_base():
     edit_form_query_rel_fields = add_form_query_rel_fields
 
     list_columns = ['project', 'service_type', 'label', 'model_name_url', 'model_version', 'inference_host_url', 'ip',
-                    'model_status', 'resource', 'replicas_html', 'creator', 'modified', 'operate_html']
+                    'status_url', 'resource', 'replicas_html', 'creator', 'modified', 'operate_html']
     cols_width = {
         "project": {"type": "ellip2", "width": 150},
         "label": {"type": "ellip2", "width": 300},
-        "service_type": {"type": "ellip2", "width": 100},
-        "model_name_url": {"type": "ellip2", "width": 300},
+        "service_type": {"type": "ellip2", "width": 200},
+        "model_name_url": {"type": "ellip2", "width": 250},
         "model_version": {"type": "ellip2", "width": 200},
         "inference_host_url": {"type": "ellip1", "width": 500},
         "ip": {"type": "ellip2", "width": 250},
-        "model_status": {"type": "ellip2", "width": 100},
+        "status_url": {"type": "ellip2", "width": 150},
         "modified": {"type": "ellip2", "width": 150},
         "operate_html": {"type": "ellip2", "width": 350},
-        "resource": {"type": "ellip2", "width": 350},
+        "resource": {"type": "ellip2", "width": 200},
     }
     search_columns = ['name', 'created_by', 'project', 'service_type', 'label', 'model_name', 'model_version',
                       'model_path', 'host', 'model_status', 'resource_gpu']
@@ -119,15 +157,14 @@ class InferenceService_ModelView_base():
     }
     service_type_choices = [x.replace('_','-') for x in service_type_choices]
     host_rule=",<br>".join([cluster+"cluster:*."+conf.get('CLUSTERS')[cluster].get("SERVICE_DOMAIN",conf.get('SERVICE_DOMAIN','')) for cluster in conf.get('CLUSTERS') if conf.get('CLUSTERS')[cluster].get("SERVICE_DOMAIN",conf.get('SERVICE_DOMAIN',''))])
-    model_path_describe = _('''
-serving：自定义镜像的推理服务，模型地址随意
+    model_path_describe = '''serving：自定义镜像的推理服务，模型地址随意
 ml-server：支持sklearn和xgb导出的模型，需按文档设置ml推理服务的配置文件
 tfserving：仅支持添加了服务签名的saved_model目录地址，例如：/mnt/xx/../saved_model/
 torch-server：torch-model-archiver编译后的mar模型文件，需保存模型结构和模型参数，例如：/mnt/xx/../xx.mar或torch script保存的模型
 onnxruntime：onnx模型文件的地址，例如：/mnt/xx/../xx.onnx
 triton-server：框架:地址。onnx:模型文件地址model.onnx，pytorch:torchscript模型文件地址model.pt，tf:模型目录地址saved_model，tensorrt:模型文件地址model.plan
 llm-server: 不同镜像提供不同的推理架构，默认为vllm提供gpu推理加速和openai流式接口
-'''.strip())
+'''.strip()
 
     add_form_extra_fields={
         "project": QuerySelectField(
@@ -137,7 +174,7 @@ llm-server: 不同镜像提供不同的推理架构，默认为vllm提供gpu推�
             widget=Select2Widget(),
             validators=[DataRequired()]
         ),
-        "resource_memory":StringField('memory',default='5G',description= _('内存的资源使用限制，示例1G，10G， 最大100G，如需更多联系管路员'),widget=BS3TextFieldWidget(),validators=[DataRequired()]),
+        "resource_memory":StringField('memory',default='5G',description= _('内存的资源使用限制，示例1G，10G， 最大100G，如需更多联系管路员'),widget=BS3TextFieldWidget(),validators=[DataRequired(), Regexp("^.*G$")]),
         "resource_cpu":StringField('cpu', default='5',description= _('cpu的资源使用限制(单位核)，示例 0.4，10，最大50核，如需更多联系管路员'),widget=BS3TextFieldWidget(), validators=[DataRequired()]),
         "min_replicas": StringField(_('最小副本数'), default=InferenceService.min_replicas.default.arg,description= _('最小副本数，用来配置高可用，流量变动自动伸缩'),widget=BS3TextFieldWidget(), validators=[DataRequired()]),
         "max_replicas": StringField(_('最大副本数'), default=InferenceService.max_replicas.default.arg,
@@ -232,8 +269,8 @@ llm-server: 不同镜像提供不同的推理架构，默认为vllm提供gpu推�
         'model_path': StringField(
             _('模型地址'),
             default='',
-            description= _('模型文件的容器地址或下载地址，格式参考详情'),
-            widget=MyBS3TextFieldWidget(tips=model_path_describe),
+            description= _('模型文件的容器地址或下载地址，格式参考详情。'),
+            widget=MyBS3TextFieldWidget(tips=_(model_path_describe)),
             validators=[]
         ),
         'images': SelectField(
@@ -488,15 +525,21 @@ output %s
         model_path = "/" + item.model_path.strip('/') if item.model_path else ''
 
         if not item.ports:
-            item.ports = conf.get('INFERNENCE_PORTS',{}).get(item.service_type,item.ports)
+            item.ports = INFERNENCE_PORTS.get(item.service_type,item.ports)
         if not item.env:
-            item.env = '\n'.join(conf.get('INFERNENCE_ENV', {}).get(item.service_type, item.env.split('\n') if item.env else []))
+            item.env = '\n'.join(INFERNENCE_ENV.get(item.service_type, item.env.split('\n') if item.env else []))
         if not item.metrics:
-            item.metrics = conf.get('INFERNENCE_METRICS', {}).get(item.service_type, item.metrics)
+            item.metrics = INFERNENCE_METRICS.get(item.service_type, item.metrics)
         if not item.health:
-            item.health = conf.get('INFERNENCE_HEALTH', {}).get(item.service_type, '').replace('$model_name',item.model_name).replace('$model_version',item.model_version)
+            item.health = INFERNENCE_HEALTH.get(item.service_type, '').replace('$model_name',item.model_name).replace('$model_version',item.model_version)
         else:
             item.health = item.health.replace('$model_name',item.model_name).replace('$model_version', item.model_version)
+
+        if not item.host:
+            item.host = INFERNENCE_HOST.get(item.service_type, '').replace('$model_name',item.model_name).replace('$model_version',item.model_version)
+        else:
+            item.host = item.host.replace('$model_name',item.model_name).replace('$model_version', item.model_version)
+
 
         # 对网络地址先统一在命令中下载
         download_command = ''
@@ -646,6 +689,7 @@ output %s
             item.volume_mount = item.project.volume_mount
 
         self.use_expand(item)
+        item.resource_gpu = item.resource_gpu.upper() if item.resource_gpu else '0'
         if not item.resource_memory:
             item.resource_memory = '2G'
         if not item.resource_cpu:
@@ -664,7 +708,7 @@ output %s
         try:
             from myapp.utils.py.py_k8s import K8s
             k8s_client = K8s(cluster.get('KUBECONFIG', ''))
-            service_namespace = conf.get('SERVICE_NAMESPACE')
+            service_namespace = conf.get('SERVICE_NAMESPACE','service')
             for namespace in [service_namespace, ]:
                 for name in [service_name, 'debug-' + service_name, 'test-' + service_name]:
                     service_external_name = (name + "-external").lower()[:60].strip('-')
@@ -700,25 +744,8 @@ output %s
                     # 如果集群变了，原有集群的已经部署的服务要clear掉
                     service_name = self.src_item_json.get('name', '')
                     if service_name:
-                        from myapp.utils.py.py_k8s import K8s
-                        k8s_client = K8s(src_project.cluster.get('KUBECONFIG', ''))
-                        service_namespace = conf.get('SERVICE_NAMESPACE')
-                        for namespace in [service_namespace, ]:
-                            for name in [service_name, 'debug-' + service_name, 'test-' + service_name]:
-                                service_external_name = (name + "-external").lower()[:60].strip('-')
-                                k8s_client.delete_deployment(namespace=namespace, name=name)
-                                k8s_client.delete_statefulset(namespace=namespace, name=name)
-                                k8s_client.delete_service(namespace=namespace, name=name)
-                                k8s_client.delete_service(namespace=namespace, name=service_external_name)
-                                k8s_client.delete_istio_ingress(namespace=namespace, name=name)
-                                k8s_client.delete_hpa(namespace=namespace, name=name)
-                                k8s_client.delete_configmap(namespace=namespace, name=name)
-                                k8s_client.delete_crd(group='security.istio.io', version='v1beta1',
-                                                      plural='requestauthentications',
-                                                      namespace=namespace, name=name)
-                                k8s_client.delete_crd(group='security.istio.io', version='v1beta1',
-                                                      plural='authorizationpolicies',
-                                                      namespace=namespace, name=name)
+                        self.delete_old_service(service_name,src_project.cluster)
+
                 # 域名后缀如果不一样也要变了
                 if src_project and src_project.cluster['SERVICE_DOMAIN'] != item.project.cluster['SERVICE_DOMAIN']:
                     item.host=item.host.replace(src_project.cluster['SERVICE_DOMAIN'],item.project.cluster['SERVICE_DOMAIN'])
@@ -880,6 +907,14 @@ output %s
             print('create configmap')
             k8s_client.create_configmap(namespace=namespace, name=name, data=config_data, labels={'app': name})
             volume_mount += ",%s(configmap):/config/" % name
+
+        # 对挂载做一下渲染替换，可以替换用户名，也可以替换环境变量
+        volume_mount = volume_mount.replace("{{creator}}", service.created_by.username)
+        if service.env:
+            for e in service.env.split("\n"):
+                if '=' in e:
+                    volume_mount = volume_mount.replace('{{' + e.split("=")[0] + '}}', e.split("=")[1])
+
         ports = [int(port) for port in service.ports.split(',')]
         gpu_num, gpu_type, resource_name = core.get_gpu(service.resource_gpu)
 
@@ -892,8 +927,12 @@ output %s
         pod_env += '\nKUBEFLOW_AREA=' + json.loads(service.project.expand).get('area', 'guangzhou')
         pod_env += "\nRESOURCE_CPU=" + service.resource_cpu
         pod_env += "\nRESOURCE_MEMORY=" + service.resource_memory
-        pod_env += "\nRESOURCE_GPU=" + str(int(gpu_num))
+        pod_env += "\nRESOURCE_MIN_REPLICAS=" + str(service.min_replicas)
+        pod_env += "\nRESOURCE_MAX_REPLICAS=" + str(service.max_replicas)
+        pod_env += "\nRESOURCE_GPU=" + (str(gpu_num) if ',' not in str(gpu_num) else str(gpu_num).split(',')[1])
         pod_env += "\nMODEL_PATH=" + service.model_path
+        pod_env += "\nMODEL_NAME=" + service.model_name
+
         pod_env = pod_env.strip(',')
 
         if env == 'test' or env == 'debug':
@@ -938,7 +977,7 @@ output %s
                 replicas=deployment_replicas,
                 labels=labels,
                 annotations=pod_annotations,
-                command=['sh', '-c', command] if command else None,
+                command=['bash', '-c', command] if command else None,
                 args=None,
                 volume_mount=volume_mount,
                 working_dir=service.working_dir,
@@ -1024,17 +1063,22 @@ output %s
             if ip and type(ip) == list:
                 SERVICE_EXTERNAL_IP = ip
 
+        # 使用集群的ip
+        if not SERVICE_EXTERNAL_IP:
+            ip = service.project.cluster.get('HOST','').split('|')[0].strip().split(':')[0]
+            if ip:
+                SERVICE_EXTERNAL_IP=[ip]
+
         # 使用全局ip
         if not SERVICE_EXTERNAL_IP:
             SERVICE_EXTERNAL_IP = conf.get('SERVICE_EXTERNAL_IP', None)
 
         # 使用当前ip
         if not SERVICE_EXTERNAL_IP:
-            ip = request.host[:request.host.rindex(':')] if ':' in request.host else request.host  # 如果捕获到端口号，要去掉
-            if ip == '127.0.0.1':
-                host = service.project.cluster.get('HOST', '')
+            ip = request.host.split(':')[0]
+            if '127.0.0.1' in ip:
+                host = service.project.cluster.get('HOST', '').split('|')[0].strip().split(':')[0]
                 if host:
-                    host = host[:host.rindex(':')] if ':' in host else host
                     SERVICE_EXTERNAL_IP = [host]
 
             elif core.checkip(ip):
@@ -1343,7 +1387,13 @@ output %s
         data = sorted(data, key=lambda x: re.search(r'>(.*?)</a>',x['model_name_url']).group(1))
         for name, group in itertools.groupby(data, key=lambda x: re.search(r'>(.*?)</a>',x['model_name_url']).group(1)):
             group=list(group)
+            # 优先显示在线的服务。
             online_id = [x['id'] for x in group if x.get("model_status","offline")=='online']
+            # # 按修改时间进行排序，这个需要list接口中返回changed_on
+            # if not online_id:
+            #     exist_services = sorted(group,key=lambda x:x['changed_on'],reverse=True)
+            #     online_id = exist_services[0]
+            # max_id = online_id
             max_id = max([x['id'] for x in group]) if not online_id else online_id[0]
             all_last_data_id.append(max_id)
             for item in group:
@@ -1379,12 +1429,12 @@ class InferenceService_ModelView_Api(InferenceService_ModelView_base, MyappModel
         }
         response_add_columns['images']['values'] = [{"id":x,"value":x} for x in conf.get('INFERNENCE_IMAGES',{}).get(exist_service_type,[])]
         response_add_columns['model_path']['default']=service_model_path.get(exist_service_type,'')
-        response_add_columns['command']['default'] = conf.get('INFERNENCE_COMMAND',{}).get(exist_service_type,'')
-        response_add_columns['env']['default'] = '\n'.join(conf.get('INFERNENCE_ENV',{}).get(exist_service_type,[]))
-        response_add_columns['ports']['default'] = conf.get('INFERNENCE_PORTS',{}).get(exist_service_type,'80')
-        response_add_columns['metrics']['default'] = conf.get('INFERNENCE_METRICS',{}).get(exist_service_type,'')
-        response_add_columns['health']['default'] = conf.get('INFERNENCE_HEALTH',{}).get(exist_service_type,'')
-        response_add_columns['health']['default'] = conf.get('INFERNENCE_HEALTH', {}).get(exist_service_type, '')
+        response_add_columns['command']['default'] = INFERNENCE_COMMAND.get(exist_service_type,'')
+        response_add_columns['host']['default'] = INFERNENCE_HOST.get(exist_service_type, '')
+        response_add_columns['env']['default'] = '\n'.join(INFERNENCE_ENV.get(exist_service_type,[]))
+        response_add_columns['ports']['default'] = INFERNENCE_PORTS.get(exist_service_type,'80')
+        response_add_columns['metrics']['default'] = INFERNENCE_METRICS.get(exist_service_type,'')
+        response_add_columns['health']['default'] = INFERNENCE_HEALTH.get(exist_service_type,'')
 
         # if exist_service_type!='triton-server' and "inference_config" in response_add_columns:
         #     del response_add_columns['inference_config']

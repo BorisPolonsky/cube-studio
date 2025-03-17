@@ -49,16 +49,16 @@ mysql> flush privileges;
 docker build --network=host -t ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard:base-python3.9 -f install/docker/Dockerfile-base .
 
 使用基础镜像构建生产镜像
-docker build --network=host -t ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard:2024.11.01 -f install/docker/Dockerfile .
+docker build --network=host -t ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard:2025.01.01 -f install/docker/Dockerfile .
 
 构建frontend镜像
-docker build --network=host -t ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard-frontend:2024.11.01 -f install/docker/dockerFrontend/Dockerfile .
+docker build --network=host -t ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard-frontend:2025.01.01 -f install/docker/dockerFrontend/Dockerfile .
 ```
 
 ## 镜像拉取(如果你不参与开发可以直接使用线上镜像)
 ```
-docker pull ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard:2024.11.01
-docker pull ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard-frontend:2024.11.01
+docker pull ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard:2025.01.01
+docker pull ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard-frontend:2025.01.01
 ```
 
 ## deploy myapp (docker-compose)
@@ -98,9 +98,16 @@ STAGE: 'dev'
 docker-compose -f docker-compose.yml  up
 ```
 
-部署以后，登录首页 会自动创建用户，绑定角色（Gamma和username同名角色）。
+部署以后，登录首页 会自动创建用户，绑定角色（Gamma）。
 
 可根据自己的需求为角色授权。
+
+注意：一种比较快捷的本地调试方式，是在后端的启动命令前加上sleep 1000000，然后docker-compose up -d起来以后，再`docker exec -it docker-myapp-1 bash`进入到后端命令行进行调试。
+
+首次调试需要创建数据库和初始化。执行`/entrypoint.sh`
+
+后续的调试可以直接执行`python myapp/run.py`
+
 
 2）本地连接k8s开发集群
 
@@ -167,6 +174,28 @@ cd /home/myapp/myapp/visionPlus && yarn && npm run build
 STAGE: 'build'
 docker-compose -f docker-compose.yml  up
 ```
+## 前后端镜像升级
+
+### 前端镜像升级
+
+在项目根目录下执行下面命令：其中xx.xx.xx/xx/是你的镜像仓库地址
+
+docker build --network=host -t xx.xx.xx/xx/kubeflow-dashboard-frontend:xx -f install/docker/dockerFrontend/Dockerfile .
+
+然后线上infra命令空间修改kubeflow-dashboard-frontend的deployment的镜像名换为你自己构建的
+
+![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/c9c8665aba0844f088416b776b10a1d4.png)
+
+
+### 后端镜像升级
+
+在项目根目录下执行下面命令：其中xx.xx.xx/xx/是你的镜像仓库地址
+
+docker build --network=host -t xx.xx.xx/xx/kubeflow-dashboard:xx -f install/docker/Dockerfile .
+
+然后线上infra命令空间修改kubeflow-dashboard的deployment的镜像名换为你自己构建的
+
+![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/3bbabe70cf954bb78b91331e113bf103.png)
 
 ## Q&A
 1） 如果构建镜像过程中因为网络问题失败，可以通过新增pip国内镜像地址来解决。
@@ -211,4 +240,3 @@ Power Shell 单独安装失败的部分，但要确保安装的版本号与requi
 
 6）windows 环境，打包visionPlus 编译过程报错
 /myapp/visionPlus/.eslintrc 文件中 注释行："linebreak-style": ["error", "unix"]，取消注释行："linebreak-style": ["error", "windows"]
-

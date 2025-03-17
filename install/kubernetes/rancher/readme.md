@@ -102,16 +102,18 @@ docker ps -a   查看是否还有剩余没清理干净的，如果有，重启�
 # 提前拉取需要的镜像
 sh pull_rancher_images.sh 
 
-如果拉取中碰到拉取失败的问题，可以尝试通过“systemctl restart docker”重启docker，再次执行拉取脚本就可以了。
+如果拉取中碰到拉取失败的问题，配置好docker加速器后尝试通过“systemctl restart docker”重启docker，再次执行拉取脚本就可以了。
 
 echo "127.0.0.1 localhost" >> /etc/hosts
+echo "net.netfilter.nf_conntrack_max = 524288" | sudo tee -a /etc/sysctl.conf
+sysctl -p
 
 # 部署rancher server
 export RANCHER_CONTAINER_TAG=v2.8.5
 export PASSWORD=cube-studio
-sudo docker run -d --privileged --restart=unless-stopped -p 443:443 --name=myrancher -e AUDIT_LEVEL=3 -e CATTLE_SYSTEM_DEFAULT_REGISTRY=registry.cn-hangzhou.aliyuncs.com -e CATTLE_BOOTSTRAP_PASSWORD=$PASSWORD -v /data/rancher:/var/lib/rancher registry.cn-hangzhou.aliyuncs.com/rancher/rancher:$RANCHER_CONTAINER_TAG
+sudo docker run -d --privileged --restart=unless-stopped -p 443:443 --name=myrancher -e AUDIT_LEVEL=3 -e CATTLE_SYSTEM_DEFAULT_REGISTRY=registry.cn-hangzhou.aliyuncs.com -e CATTLE_BOOTSTRAP_PASSWORD=$PASSWORD registry.cn-hangzhou.aliyuncs.com/rancher/rancher:$RANCHER_CONTAINER_TAG
 # 打开 https://xx.xx.xx.xx:443/ 等待web界面可以打开。预计要1~10分钟
-# 输入密码cube-studio
+# 用户名admin，输入密码cube-studio
 ```
 
 ## 4.1 rancher server 启动可能问题
@@ -129,9 +131,9 @@ sudo docker run -d --privileged --restart=unless-stopped -p 443:443 --name=myran
 - 7 查看k3s的日志报错，在容器刚重启后，执行 `docker exec -it myrancher cat k3s.log > k3s.log` 将报错日志保存到本地，在日志中搜索error相关内容。
 
     如果是k3s启动失败，docker exec -it myrancher cat k3s.log > k3s.log  查看k3s的日志  
-    如果k3s日志报错 iptable的问题，那就按照上面的centos8或者ubuntu22.04配置iptable，  
+    如果k3s日志报错 iptable的问题，那就按照上面的centos8配置iptable，  
     如果k3s日志报错 containerd的问题，那就 docker exec -it myrancher mv /var/lib/rancher/k3s/agent/containerd /varllib/rancher/k3slagent/_containerd  
-    如果k3s日志报错系统内容中没有xx模块，那就降低linux系统内容
+    如果k3s日志报错系统内容中没有xx模块，那就降低linux系统版本
 
 # 5. 部署k8s集群
 
@@ -162,8 +164,21 @@ sudo docker run -d --privileged --restart=unless-stopped -p 443:443 --name=myran
     kube-api:
       ...
     kubelet:
+      extra_args:
+        # 与apiserver会话时的并发数，默认是10
+        kube-api-burst: "30"
+        # kubelet默认一次拉取一个镜像，设置为false可以同时拉取多个镜像，
+        # 前提是存储驱动要为overlay2，对应的Dokcer也需要增加下载并发数，参考[docker配置](/rancher2x/install-prepare/best-practices/docker/)
+        serialize-image-pulls: "false"
+        # 节点资源预留
+        enforce-node-allocatable: "pods"
+        system-reserved: "cpu=0.25,memory=200Mi"
+        kube-reserved: "cpu=0.25,memory=1500Mi"
+        image-gc-high-threshold: 95
+        image-gc-low-threshold: 90
       extra_binds:
         - '/data:/data'
+        
 ```
 ![在这里插入图片描述](https://i-blog.csdnimg.cn/direct/a380de5081d74bd5ac49f0392e6aa341.jpeg)
 
@@ -211,6 +226,8 @@ services部分的示例（注意缩进对齐）
       cluster_dns_server: 172.16.0.10
       # 主机镜像回收触发门槛，如果机器空间小，可以把这两个参数调高
       extra_args:
+        # 配置特殊的端口
+        port: 10250  
         image-gc-high-threshold: 90
         image-gc-low-threshold: 85
         resolv-conf: "/etc/resolv-src.conf"
@@ -247,11 +264,19 @@ services部分的示例（注意缩进对齐）
 因为rancher server的证书有效期是一年，在一年后，rancher server会报证书过期。因此，可以通过下面的方式，创建新的证书。
 
 ```bash
+# 2.6.2版本的解决方法
+sudo docker exec -it <container_id> sh -c "rm /var/lib/rancher/k3s/server/tls/dynamic-cert.json"
+sudo docker exec -it <container_id> k3s kubectl --insecure-skip-tls-verify=true delete secret -n kube-system k3s-serving
+sudo docker restart <container_id>
+
+rancher server修复后，重启每台机器的canal的网络pod
+
+
+# 之前版本的解决方法
 docker stop $RANCHER_CONTAINER_NAME
 docker start $RANCHER_CONTAINER_NAME 
-docker exec -it $RANCHER_CONTAINER_NAME sh -c "mv k3s/server/tls k3s/server/tls.bak" 
+docker exec -it $RANCHER_CONTAINER_NAME sh -c "rm /var/lib/rancher/k3s/server/tls/dynamic-cert.json" 
 docker logs --tail 3 $RANCHER_CONTAINER_NAME 
-
 # 将出现类似于以下的内容: 
 # 2021/01/03 03:07:01 [INFO] Waiting for server to become available: Get https://localhost:6443/version?timeout=30s: x509: certificate signed by unknown authority 
 # 2021/01/03 03:07:03 [INFO] Waiting for server to become available: Get https://localhost:6443/version?timeout=30s: x509: certificate signed by unknown authority 
@@ -259,6 +284,9 @@ docker logs --tail 3 $RANCHER_CONTAINER_NAME
 
 docker stop $RANCHER_CONTAINER_NAME 
 docker start $RANCHER_CONTAINER_NAME
+
+rancher server修复后，重启每台机器的canal的网络pod
+
 ```
 
 # 6. 部署完成后需要部分修正
