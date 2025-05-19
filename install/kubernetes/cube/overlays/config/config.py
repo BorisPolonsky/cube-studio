@@ -759,8 +759,8 @@ HUBSECRET_NAMESPACE=[PIPELINE_NAMESPACE,AUTOML_NAMESPACE,NOTEBOOK_NAMESPACE,SERV
 
 # notebook使用的镜像
 NOTEBOOK_IMAGES=[
-    ['docker2.gf.com.cn/aims2/cube-studio/notebook:vscode-ubuntu-cpu-base', 'vscode（cpu）'],
-    ['docker2.gf.com.cn/aims2/cube-studio/notebook:vscode-ubuntu-gpu-base', 'vscode（gpu）'],
+    #['docker2.gf.com.cn/aims2/cube-studio/notebook:vscode-ubuntu-cpu-base', 'vscode（cpu）'],
+    #['docker2.gf.com.cn/aims2/cube-studio/notebook:vscode-ubuntu-gpu-base', 'vscode（gpu）'],
     #['docker2.gf.com.cn/aims2/cube-studio/notebook:jupyter-ubuntu22.04', 'jupyter（cpu）'],
     #['docker2.gf.com.cn/aims2/cube-studio/notebook:jupyter-ubuntu22.04-cuda11.8.0-cudnn8','jupyter（gpu）'],
     #['docker2.gf.com.cn/aims2/cube-studio/notebook:jupyter-ubuntu-bigdata', 'jupyter（bigdata）'],
@@ -769,7 +769,8 @@ NOTEBOOK_IMAGES=[
     #['docker2.gf.com.cn/aims2/cube-studio/notebook:enterprise-jupyter-ubuntu-cpu-pro', 'jupyter-conda-pro（企业版）'],
     #['docker2.gf.com.cn/aims2/cube-studio/notebook:enterprise-matlab-ubuntu-deeplearning', 'matlab（企业版）'],
     #['docker2.gf.com.cn/aims2/cube-studio/notebook:enterprise-rstudio-ubuntu-bigdata', 'rstudio（企业版）'],
-    ["docker2.gf.com.cn/mlp/cdsw/ml-runtime-openvscode-python3.10-cuda-gateone:v2023.10.12", "E.N.O.T.A.G(openvscode)"]
+    #["docker2.gf.com.cn/mlp/cdsw/ml-runtime-openvscode-python3.10-cuda-gateone:v2023.10.12", "E.N.O.T.A.G(openvscode)"],
+    ["docker2.gf.com.cn/mlp/cube-studio/openvscode-server:2025.05.19.1", "pytorch(openvscode)"],
 ]
 
 # 定时检查大小的目录列表。需要再celery中启动检查任务
