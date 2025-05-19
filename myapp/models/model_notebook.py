@@ -57,7 +57,9 @@ class Notebook(Model,AuditMixinNullable,MyappModelBase):
         expand = json.loads(self.expand) if self.expand else {}
         root = expand.get('root','')
 
-        if self.ide_type=='theia':
+        if self.ide_type=='openvscode':
+            url = "/notebook/"+self.namespace + "/" + self.name+"/?folder="+self.mount
+        elif self.ide_type=='theia':
             url = "/notebook/"+self.namespace + "/" + self.name+"/" + "#"+self.mount
         else:
             if root.lstrip('/'):
@@ -73,7 +75,9 @@ class Notebook(Model,AuditMixinNullable,MyappModelBase):
             from myapp.utils import core
             meet_ports = core.get_not_black_port(10000 + 10 * self.id)
             host = "//%s:%s"%(SERVICE_EXTERNAL_IP,str(meet_ports[0]))
-            if self.ide_type=='theia':
+            if self.ide_type== "openvscode":
+                url = "/notebook/"+self.namespace + "/" + self.name+"/?folder="+self.mount
+            elif self.ide_type=='theia':
                 url = "/" + "#/mnt/" + self.created_by.username
             elif self.ide_type == 'matlab':
                 url = "/notebook/" + self.namespace + "/" + self.name + "/index.html"

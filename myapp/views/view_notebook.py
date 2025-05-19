@@ -195,8 +195,9 @@ class Notebook_ModelView_Base():
         item.resource_memory=core.check_resource_memory(item.resource_memory,self.src_item_json.get('resource_memory',None))
         item.resource_cpu = core.check_resource_cpu(item.resource_cpu,self.src_item_json.get('resource_cpu',None))
         item.namespace = json.loads(item.project.expand).get('NOTEBOOK_NAMESPACE', conf.get('NOTEBOOK_NAMESPACE'))
-
-        if 'theia' in item.images or 'vscode' in item.images:
+        if 'openvscode' in item.images or 'vscode' in item.images:
+            item.ide_type = 'openvscode'
+        elif 'theia' in item.images:
             item.ide_type = 'theia'
         elif 'matlab' in item.images:
             item.ide_type = 'matlab'
@@ -204,7 +205,6 @@ class Notebook_ModelView_Base():
             item.ide_type = 'rstudio'
         else:
             item.ide_type = 'jupyter'
-
         if not item.id:
             item.volume_mount = item.project.volume_mount
 
@@ -338,7 +338,14 @@ class Notebook_ModelView_Base():
             #                         "--NotebookApp.allow_origin='*' "
             #                         "--NotebookApp.base_url=%s" % (pre_command,port,rewrite_url)]
 
-
+        elif notebook.ide_type == "openvscode":
+            rewrite_url = '/notebook/jupyter/%s/' % notebook.name
+            workingDir = '/mnt/%s' % notebook.created_by.username
+            command = ["/entrypoint.sh", "--without-connection-token",
+                       "--host", "0.0.0.0",
+                       "--port", "%s" % port,
+                       "--server-base-path", "%s" % rewrite_url
+                       ]
         elif notebook.ide_type=='theia':
             command = ["bash",'-c','%s node /home/theia/src-gen/backend/main.js /home/project --hostname=0.0.0.0 --port=%s'%(pre_command,port)]
             workingDir = '/home/theia'
