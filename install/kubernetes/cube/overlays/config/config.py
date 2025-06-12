@@ -110,8 +110,8 @@ OAUTH_PROVIDERS=[]
 # AUTH_LDAP_BASE_DN = 'cpcnet.local'   # 基准dn
 
 # GF-IAM
-AUTH_TYPE = AUTH_LDAP
-AUTH_LDAP_SERVER = "ldap://iam.gf.com.cn:389"
+# AUTH_TYPE = AUTH_LDAP
+AUTH_LDAP_SERVER = "ldap://iamdev.gf.com.cn:1389"
 AUTH_LDAP_USE_TLS = False
 
 # registration configs
@@ -122,10 +122,10 @@ AUTH_ROLE_PUBLIC = "Public"
 AUTH_LDAP_EMAIL_FIELD = "mail"  # if null in LDAP, email is set to: "{username}@email.notfound"
 
 # search configs
-AUTH_LDAP_SEARCH = "OU=广发证券股份有限公司,DC=gfsecurities,DC=com"
+AUTH_LDAP_SEARCH = "OU=广发证券股份有限公司,DC=gfdev,DC=com"
 AUTH_LDAP_UID_FIELD = "sAMAccountName"  # the username field
-AUTH_LDAP_BIND_USER = "CN=cube-studio平台管理员,OU=AD用户,OU=AD群组,OU=广发证券股份有限公司,DC=gfsecurities,DC=com"
-AUTH_LDAP_BIND_PASSWORD = "CubeAdmin@gf" # # the special bind password for search
+AUTH_LDAP_BIND_USER = "CN=黄钊衔,OU=广发期货风险管理部,OU=广发期货总部各部门,OU=广发期货有限公司,OU=所有子公司,OU=广发证券股份有限公司,DC=gfdev,DC=com"
+AUTH_LDAP_BIND_PASSWORD = "GFdev2025@Hw" # # the special bind password for search
 
 # You can limit the LDAP search scope by configuring
 AUTH_LDAP_SEARCH_FILTER="(objectClass=person)"
@@ -759,8 +759,8 @@ HUBSECRET_NAMESPACE=[PIPELINE_NAMESPACE,AUTOML_NAMESPACE,NOTEBOOK_NAMESPACE,SERV
 
 # notebook使用的镜像
 NOTEBOOK_IMAGES=[
-    #['docker2.gf.com.cn/aims2/cube-studio/notebook:vscode-ubuntu-cpu-base', 'vscode（cpu）'],
-    #['docker2.gf.com.cn/aims2/cube-studio/notebook:vscode-ubuntu-gpu-base', 'vscode（gpu）'],
+    ['docker2.gf.com.cn/aims2/cube-studio/notebook:vscode-ubuntu-cpu-base', 'vscode（cpu）'],
+    ['docker2.gf.com.cn/aims2/cube-studio/notebook:vscode-ubuntu-gpu-base', 'vscode（gpu）'],
     #['docker2.gf.com.cn/aims2/cube-studio/notebook:jupyter-ubuntu22.04', 'jupyter（cpu）'],
     #['docker2.gf.com.cn/aims2/cube-studio/notebook:jupyter-ubuntu22.04-cuda11.8.0-cudnn8','jupyter（gpu）'],
     #['docker2.gf.com.cn/aims2/cube-studio/notebook:jupyter-ubuntu-bigdata', 'jupyter（bigdata）'],
@@ -769,8 +769,8 @@ NOTEBOOK_IMAGES=[
     #['docker2.gf.com.cn/aims2/cube-studio/notebook:enterprise-jupyter-ubuntu-cpu-pro', 'jupyter-conda-pro（企业版）'],
     #['docker2.gf.com.cn/aims2/cube-studio/notebook:enterprise-matlab-ubuntu-deeplearning', 'matlab（企业版）'],
     #['docker2.gf.com.cn/aims2/cube-studio/notebook:enterprise-rstudio-ubuntu-bigdata', 'rstudio（企业版）'],
-    #["docker2.gf.com.cn/mlp/cdsw/ml-runtime-openvscode-python3.10-cuda-gateone:v2023.10.12", "E.N.O.T.A.G(openvscode)"],
-    ["docker2.gf.com.cn/mlp/cube-studio/openvscode-server:2025.05.19.1", "pytorch(openvscode)"],
+    ["docker2.gf.com.cn/mlp/cdsw/ml-runtime-openvscode-python3.10-cuda-gateone:v2023.10.12", "E.N.O.T.A.G(openvscode)"],
+    ["docker2.gf.com.cn/mlp/cube-studio/openvscode-server:2025.05.19.1", "pytorch(openvscode)"]
 ]
 
 # 定时检查大小的目录列表。需要再celery中启动检查任务

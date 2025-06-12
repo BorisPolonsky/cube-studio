@@ -7,7 +7,7 @@ spec:
   gateways:
   - kubeflow/kubeflow-gateway
   hosts:
-  - "cube-studio.gf.com.cn"    # 管理平台的域名   kubeflow.local.com
+  - "cube-studio-dev.gf.com.cn"    # 管理平台的域名   kubeflow.local.com
   http:
   - route:
     - destination:

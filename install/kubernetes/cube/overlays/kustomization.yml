@@ -13,7 +13,7 @@ configMapGenerator:
 
 - name: deploy-config
   literals:
-  - STAGE=prod
+  - STAGE=dev
   - REDIS_HOST=redis-62-master-0.redis-62-master.infra.svc.cluster.local
   - REDIS_PORT=6379
   - REDIS_PASSWORD=admin
@@ -35,6 +35,8 @@ resources:
 
 images:
 - name: ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard
+  # newName: docker2.gf.com.cn/aims2/cube-studio/kubeflow-dashboard
+  # newTag: v2025.01.01-ldap-support-2025.03.24.1
   newName: docker2.gf.com.cn/aims2/cube-studio/kubeflow-dashboard
   newTag: v2025.01.01-openvscode-server-2025.06.10.1
 - name: ccr.ccs.tencentyun.com/cube-studio/kubeflow-dashboard-frontend
