@@ -442,7 +442,8 @@ class Notebook_ModelView_Base():
                                 },
                                 "headers": {
                                     "cookie":{
-                                        "regex": ".*myapp_username=.*"
+                                        # "regex": ".*myapp_username=.*"
+                                        "regex": ".*myapp_username={}.*".format(notebook.created_by.username)
                                     }
                                 }
                             }
