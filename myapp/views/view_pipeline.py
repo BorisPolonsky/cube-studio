@@ -367,11 +367,32 @@ def dag_to_pipeline(pipeline, dbsession, workflow_label=None, **kwargs):
 
             gpu_num, gpu_type, gpu_resource_name = core.get_gpu(resource_gpu)
 
-            # 整卡占用
-            if gpu_num >= 1:
+            # 确定使用的资源名称：vGPU模式使用vgpu_resource，非vGPU模式使用gpu_resource
+            # vGPU模式：当VGPU_RESOURCE配置时，所有GPU请求（整卡和小数）都使用vgpu_resource
+            # 非vGPU模式：当VGPU_RESOURCE为空时，所有GPU请求都使用gpu_resource
+            vgpu_resource = conf.get('VGPU_RESOURCE', {})
+            resource_name = gpu_resource_name
+            if vgpu_resource:
+                # vGPU模式：获取vGPU资源名称
+                if 'vgpu' in vgpu_resource:
+                    resource_name = vgpu_resource['vgpu']
+                else:
+                    resource_name = list(vgpu_resource.values())[0] if vgpu_resource else gpu_resource_name
+                # 如果没有配置vGPU资源，回退到默认GPU资源名称（某些实现如HamI使用相同的资源名）
+                if not resource_name:
+                    resource_name = gpu_resource_name
 
-                resources_requests[gpu_resource_name] = str(int(gpu_num))
-                resources_limits[gpu_resource_name] = str(int(gpu_num))
+            # 整卡占用或vGPU占用
+            if gpu_num >= 1:
+                resources_requests[resource_name] = str(int(gpu_num))
+                resources_limits[resource_name] = str(int(gpu_num))
+            # vGPU占用 (支持小数形式，如0.1表示10%的GPU)
+            elif gpu_num > 0 and gpu_num < 1:
+                if resource_name:
+                    # 设置vGPU资源请求，支持小数形式
+                    resources_requests[resource_name] = str(gpu_num)
+                    resources_limits[resource_name] = str(gpu_num)
+                # 如果VGPU_RESOURCE为空且没有配置GPU资源，小数GPU请求将被忽略（不分配GPU）
 
             if 0 == gpu_num:
                 # 没要gpu的容器，就要加上可视gpu为空，不然gpu镜像能看到和使用所有gpu

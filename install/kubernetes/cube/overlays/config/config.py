@@ -688,7 +688,20 @@ GPU_NONE={
     "gpu":['NVIDIA_VISIBLE_DEVICES','none']
 }
 
-# vgpu的类型方式
+# vgpu的类型方式 - Generic vGPU configuration
+# vGPU support is automatically enabled when VGPU_RESOURCE is configured (not empty)
+# If VGPU_RESOURCE is empty {}, the system uses regular GPU mode (GPU_RESOURCE)
+# If VGPU_RESOURCE is configured, the system uses vGPU mode (VGPU_DRIVE_TYPE and VGPU_RESOURCE)
+
+# Maps vGPU type identifiers to their Kubernetes resource names
+# Different vGPU implementations use different resource names:
+#   - HamI: uses nvidia.com/gpu with fractional values (e.g., 0.1 = 10% GPU)
+#   - Volcano vGPU: uses volcano.sh/vgpu-number
+#   - Other implementations: may use nvidia.com/vgpu, nvidia.com/gpucores, etc.
+# Example configurations:
+#   VGPU_RESOURCE = {"vgpu": "nvidia.com/gpu"}  # HamI
+#   VGPU_RESOURCE = {"vgpu": "volcano.sh/vgpu-number"}  # Volcano vGPU
+#   VGPU_RESOURCE = {"vgpu": "nvidia.com/vgpu", "hami": "nvidia.com/gpu"}  # Multiple implementations
 VGPU_RESOURCE={
 }
 VGPU_DRIVE_TYPE = "vgpu"

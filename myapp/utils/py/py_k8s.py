@@ -49,6 +49,39 @@ class K8s():
 
         self.get_gpu = core.get_gpu
 
+    def get_vgpu_resource_name(self, preferred_type=None):
+        """
+        Get the vGPU resource name from VGPU_RESOURCE configuration.
+        Supports multiple vGPU implementations (HamI, Volcano, etc.)
+        vGPU is enabled when VGPU_RESOURCE is configured (not empty)
+        
+        Args:
+            preferred_type: Preferred vGPU type key (e.g., 'vgpu', 'hami', 'volcano')
+                           If None, returns the first available vGPU resource
+        
+        Returns:
+            str: vGPU resource name (e.g., 'nvidia.com/gpu', 'volcano.sh/vgpu-number')
+                 Returns None if VGPU_RESOURCE is empty (vGPU disabled)
+        """
+        # vGPU is enabled when VGPU_RESOURCE is configured (not empty)
+        if not self.vgpu_resource:
+            return None
+        
+        # If preferred type is specified and exists, use it
+        if preferred_type and preferred_type in self.vgpu_resource:
+            return self.vgpu_resource[preferred_type]
+        
+        # Otherwise, return the first available vGPU resource
+        # Priority: 'vgpu' > first entry
+        if 'vgpu' in self.vgpu_resource:
+            return self.vgpu_resource['vgpu']
+        
+        # Return first available resource
+        if self.vgpu_resource:
+            return list(self.vgpu_resource.values())[0]
+        
+        return None
+
     # 获取指定范围的pod
     # @pysnooper.snoop()
     def get_running_pods(self, namespace=None):
@@ -130,6 +163,7 @@ class K8s():
                container.resources and container.resources.limits]
 
         # gpu = [int(container.resources.requests.get('nvidia.com/gpu', '0')) for container in containers if container.resources and container.resources.requests]
+        # 兼容旧的gpucores资源名称
         vgpu = [float(container.resources.requests.get('nvidia.com/gpucores', '0')) / 100 for container in containers if
                 container.resources and container.resources.requests]
 
@@ -140,6 +174,28 @@ class K8s():
             gpu = [int(container.resources.requests.get(resource, '0')) for container in containers if
                    container.resources and container.resources.requests]
             ai_resource[name] = sum(gpu)
+        
+        # 处理vGPU资源 (支持多种vGPU实现，通过VGPU_RESOURCE配置)
+        # 不同的vGPU实现可能使用不同的资源名称和格式
+        for name in self.vgpu_resource:
+            resource = self.vgpu_resource[name]
+            # 检查是否为小数形式的vGPU请求 (0 < value < 1)
+            # 某些实现如HamI使用nvidia.com/gpu的小数值
+            vgpu_requests = [float(container.resources.requests.get(resource, '0')) for container in containers if
+                            container.resources and container.resources.requests and 
+                            float(container.resources.requests.get(resource, '0')) > 0 and
+                            float(container.resources.requests.get(resource, '0')) < 1]
+            if vgpu_requests:
+                vgpu.extend(vgpu_requests)
+            # 也检查整数值的vGPU资源（某些实现可能使用整数表示vGPU数量）
+            vgpu_int_requests = [int(container.resources.requests.get(resource, '0')) for container in containers if
+                                container.resources and container.resources.requests and
+                                int(container.resources.requests.get(resource, '0')) > 0 and
+                                resource not in [self.gpu_resource.get(k) for k in self.gpu_resource]]
+            if vgpu_int_requests:
+                # 如果vGPU资源名称与GPU资源名称不同，则认为是vGPU
+                vgpu.extend(vgpu_int_requests)
+        
         ai_resource['gpu'] = ai_resource.get('gpu', 0) + sum(vgpu)
 
         node_selector = {}
@@ -361,7 +417,7 @@ class K8s():
                 memory = [self.to_memory_GB(container.resources.requests.get('memory', '0G')) for container in containers if container.resources and container.resources.requests]
                 cpu = [self.to_cpu(container.resources.requests.get('cpu', '0')) for container in containers if container.resources and container.resources.requests]
                 # gpu = [int(container.resources.requests.get('nvidia.com/gpu', '0')) for container in containers if container.resources and container.resources.requests]
-                # vgpu += [float(container.resources.requests.get('nvidia.com/vgpu', '0')) / 10 for container in containers if container.resources and container.resources.requests]
+                # 兼容旧的gpucores资源名称
                 vgpu = [float(container.resources.requests.get('nvidia.com/gpucores', '0')) / 100 for container in containers if container.resources and container.resources.requests]
 
                 node_name = pod.spec.node_name
@@ -380,6 +436,28 @@ class K8s():
                     gpu = [int(container.resources.requests.get(resource, '0')) for container in containers if container.resources and container.resources.requests]
                     nodes_resource[node_name]["used_"+name] = nodes_resource[node_name].get("used_"+name,0)+sum(gpu)
                     # print(pod.metadata.name,"used_"+name,sum(gpu))
+                
+                # 处理vGPU资源 (支持多种vGPU实现，通过VGPU_RESOURCE配置)
+                # 不同的vGPU实现可能使用不同的资源名称和格式
+                for name in self.vgpu_resource:
+                    resource = self.vgpu_resource[name]
+                    # 检查是否为小数形式的vGPU请求 (0 < value < 1)
+                    # 某些实现如HamI使用nvidia.com/gpu的小数值
+                    vgpu_requests = [float(container.resources.requests.get(resource, '0')) for container in containers if
+                                    container.resources and container.resources.requests and 
+                                    float(container.resources.requests.get(resource, '0')) > 0 and
+                                    float(container.resources.requests.get(resource, '0')) < 1]
+                    if vgpu_requests:
+                        vgpu.extend(vgpu_requests)
+                    # 也检查整数值的vGPU资源（某些实现可能使用整数表示vGPU数量）
+                    vgpu_int_requests = [int(container.resources.requests.get(resource, '0')) for container in containers if
+                                        container.resources and container.resources.requests and
+                                        int(container.resources.requests.get(resource, '0')) > 0 and
+                                        resource not in [self.gpu_resource.get(k) for k in self.gpu_resource]]
+                    if vgpu_int_requests:
+                        # 如果vGPU资源名称与GPU资源名称不同，则认为是vGPU
+                        vgpu.extend(vgpu_int_requests)
+                
                 nodes_resource[node_name]['used_gpu'] = nodes_resource[node_name].get('used_gpu', 0) + sum(vgpu)
 
             for node_name in nodes_resource:
@@ -1100,12 +1178,32 @@ class K8s():
 
         gpu_num, gpu_type, gpu_resource_name = self.get_gpu(resource_gpu)
 
-        # 整卡占用
+        # 确定使用的资源名称：vGPU模式使用vgpu_resource，非vGPU模式使用gpu_resource
+        # vGPU模式：当VGPU_RESOURCE配置时，所有GPU请求（整卡和小数）都使用vgpu_resource
+        # 非vGPU模式：当VGPU_RESOURCE为空时，所有GPU请求都使用gpu_resource
+        if bool(self.vgpu_resource):
+            # vGPU模式：获取vGPU资源名称
+            resource_name = self.get_vgpu_resource_name()
+            # 如果没有配置vGPU资源，回退到默认GPU资源名称（某些实现如HamI使用相同的资源名）
+            if not resource_name:
+                resource_name = gpu_resource_name
+        else:
+            # 非vGPU模式：使用GPU资源名称
+            resource_name = gpu_resource_name
+
+        # 整卡占用或vGPU占用
         if gpu_num >= 1:
             gpu_num = int(gpu_num)
-            if gpu_resource_name:
-                resources_requests[gpu_resource_name] = str(int(gpu_num))
-                resources_limits[gpu_resource_name] = str(int(gpu_num))
+            if resource_name:
+                resources_requests[resource_name] = str(int(gpu_num))
+                resources_limits[resource_name] = str(int(gpu_num))
+        # vGPU占用 (支持小数形式，如0.1表示10%的GPU)
+        elif gpu_num > 0 and gpu_num < 1:
+            if resource_name:
+                # 设置vGPU资源请求，支持小数形式
+                resources_requests[resource_name] = str(gpu_num)
+                resources_limits[resource_name] = str(gpu_num)
+            # 如果VGPU_RESOURCE为空且没有配置GPU资源，小数GPU请求将被忽略（不分配GPU）
 
         if 0==gpu_num:
             # 没要gpu的容器，就要加上可视gpu为空，不然gpu镜像能看到和使用所有gpu
@@ -1207,10 +1305,22 @@ class K8s():
         # 设置卡型
         if gpu_type and gpu_type.strip():
             nodeSelector['gpu-type'] = gpu_type
-        # 独占模式，尽量聚集在一个，避免卡零碎
-        if gpu_num >= 1:
-            nodeSelector['gpu'] = 'true'
-            labels['gpu']='true'
+        # vGPU模式：当VGPU_RESOURCE配置时，所有GPU请求（整卡和小数）都使用vgpu_drive_type
+        # 非vGPU模式：当VGPU_RESOURCE为空时，所有GPU请求都使用gpu node selector
+        if gpu_num > 0:
+            if bool(self.vgpu_resource):
+                # vGPU模式：使用vgpu_drive_type作为node selector（适用于所有GPU请求）
+                nodeSelector[self.vgpu_drive_type] = 'true'
+                labels[self.vgpu_drive_type] = 'true'
+                # vGPU可以使用gpu节点，但标记为vgpu
+                nodeSelector['gpu'] = 'true'
+            else:
+                # 非vGPU模式：使用gpu node selector
+                nodeSelector['gpu'] = 'true'
+                labels['gpu']='true'
+        
+        # 整卡占用的亲和性设置（仅非vGPU模式）
+        if gpu_num >= 1 and not bool(self.vgpu_resource):
             # 优先选择gpu卡占用的地方，这样不容易造成卡的零碎化占用
             affinity = client.V1Affinity(
                 node_affinity=None,
@@ -2173,6 +2283,7 @@ class K8s():
 
             gpu = 0
             for container in containers:
+                # 检查GPU资源（非vGPU模式）
                 for gpu_resource_name in list(self.gpu_resource.values()):
                     limits = container.resources.limits
                     request = container.resources.requests
@@ -2184,6 +2295,23 @@ class K8s():
                     if container_gpu < 0.01:
                         container_gpu = 0
                     gpu += container_gpu
+                
+                # 检查vGPU资源（vGPU模式）
+                # 支持小数形式的vGPU请求 (0 < value < 1)
+                for vgpu_resource_name in list(self.vgpu_resource.values()):
+                    limits = container.resources.limits
+                    request = container.resources.requests
+                    container_vgpu = 0
+                    if limits:
+                        vgpu_val = float(limits.get(vgpu_resource_name, 0))
+                        # 处理小数vGPU（如0.1）和整数vGPU
+                        container_vgpu = vgpu_val if vgpu_val > 0 else 0
+                    elif request:
+                        vgpu_val = float(request.get(vgpu_resource_name, 0))
+                        container_vgpu = vgpu_val if vgpu_val > 0 else 0
+                    # 只有当vGPU资源名称与GPU资源名称不同时，才累加（避免重复计算）
+                    if container_vgpu > 0 and vgpu_resource_name not in list(self.gpu_resource.values()):
+                        gpu += container_vgpu
             return name, user, gpu
 
         for namespace in namespaces:
